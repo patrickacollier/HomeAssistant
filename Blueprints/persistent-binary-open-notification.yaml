@@ -64,7 +64,14 @@ blueprint:
       name: Notification Group
       description: "The name of the notification group to call. ('notify' for all devices)"
       default: ""
-
+    
+    notify_service:
+      name: "Service to run"
+      description: Service which is called when even happens
+      default:
+      selector:
+        action:
+    
     title:
       name: "Title"
       description: "Notification title"
@@ -149,6 +156,7 @@ variables:
   group_target: !input notify_group
   ha_notification: !input ha_notification
   notify_device: !input notify_device
+  notify_service: !input notify_service
   period: !input period
   action_prefix: "STOP_{{this.entity_id}}"
   notification_color: !input "notification_color"
@@ -229,6 +237,9 @@ action:
                     actions:
                       - action: "{{ action_tag }}"
                         title: !input stop_button_text
+              - service: script.alexa_tts
+                data:
+                  message: !input message  
             else:
               - service: 'notify.mobile_app_{{ device_attr(notify_device, "name") | slugify }}'
                 data:
@@ -273,6 +284,9 @@ action:
                     actions:
                       - action: "{{ action_tag }}"
                         title: !input stop_button_text
+              - service: script.alexa_tts
+                data:
+                  message: !input message                          
             else:
               - service: notify.{{ group_target }}
                 data:
