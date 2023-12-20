@@ -204,15 +204,16 @@ action:
         {% endif %}
       entity_name: "{{ state_attr(sensor,'friendly_name') }}"
       tag: "{{ this.entity_id.split('.')[1] + sensor.split('.')[1] }}"
+      is_changed_period: "{{ ((as_timestamp(now()) - as_timestamp(states[sensor].last_changed)) > period }}
       action_tag: "{{ action_prefix }}_{{ sensor }}"
 
   - if:
       - condition: template
-        value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
+        value_template: "{{ is_period_trigger or (trigger.to_state.state == active_state and is_changed_period)}}"
     then:
       - if:
           - condition: template
-            value_template: "{{ notify_device != none and ((as_timestamp(now()) - as_timestamp(states[sensor].last_changed)) > period  or is_period_trigger)}}"
+            value_template: "{{ notify_device != none }}"
         then:
           - if:
               - condition: template
@@ -314,20 +315,24 @@ action:
               message: !input message
               notification_id: "{{ tag }}"
     else:
-      - service: notify.notify
-        data:
-          data:
-            tag: "{{ tag }}"
-            ttl: 0
-            priority: high
-          message: clear_notification
-      - service: persistent_notification.dismiss
-        data:
-          notification_id: "{{ tag }}"
+      - if:
+          - condition: template
+            value_template: "{{ trigger.to_state.state != active_state }}"
+        then:
+          - service: notify.notify
+            data:
+              data:
+                tag: "{{ tag }}"
+                ttl: 0
+                priority: high
+              message: clear_notification
+          - service: persistent_notification.dismiss
+            data:
+              notification_id: "{{ tag }}"
 
   - if:
       - condition: template
-        value_template: "{{ period > 0 }}"
+        value_template: "{{(is_period_trigger and period > 0) or is_changed_period}}"
     then:
       - wait_for_trigger:
           - platform: event
