@@ -237,9 +237,9 @@ action:
                     actions:
                       - action: "{{ action_tag }}"
                         title: !input stop_button_text
-              - service: script.alexa_tts
-                data:
-                  message: !input message  
+#              - service: script.alexa_tts
+#                data:
+#                  message: !input message  
             else:
               - service: 'notify.mobile_app_{{ device_attr(notify_device, "name") | slugify }}'
                 data:
