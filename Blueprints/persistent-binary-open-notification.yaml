@@ -204,7 +204,7 @@ action:
         {% endif %}
       entity_name: "{{ state_attr(sensor,'friendly_name') }}"
       tag: "{{ this.entity_id.split('.')[1] + sensor.split('.')[1] }}"
-      is_changed_period: "{{ (as_timestamp(now()) - as_timestamp(states[sensor].last_changed)) > period }}
+      is_changed_period: "{{ (as_timestamp(now()) - as_timestamp(states[sensor].last_changed)) > period }}"
       action_tag: "{{ action_prefix }}_{{ sensor }}"
 
   - if:
