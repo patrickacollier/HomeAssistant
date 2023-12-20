@@ -212,7 +212,7 @@ action:
     then:
       - if:
           - condition: template
-            value_template: "{{ notify_device != none and ((as_timestamp(now()) - as_timestamp(states.sensor[sensor].last_changed)) > 10000  or is_period_trigger)}}"
+            value_template: "{{ notify_device != none and ((as_timestamp(now()) - as_timestamp(states.sensor.last_changed)) > 10000  or is_period_trigger)}}"
         then:
           - if:
               - condition: template
