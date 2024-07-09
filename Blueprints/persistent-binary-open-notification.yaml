@@ -333,10 +333,10 @@ action:
       entity_name: "{{ state_attr(sensor,'friendly_name') }}"
       tag: "{{ this.entity_id.split('.')[1] + sensor.split('.')[1] }}"
       action_tag: "{{ action_prefix }}_{{ sensor }}"
-      
+
   - if:
-    - condition: template
-      value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
+      - condition: template
+        value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
     then:
       - variables:
           custom_action_on: !input custom_action_on
@@ -345,20 +345,7 @@ action:
           value_template: "{{ custom_action_on != none }}"
         then:
           - choose: []
-            default: !input "custom_action_on"
-    else:
-      - variables:
-          custom_action_on: !input custom_action_off
-      - if:
-        - condition: template
-          value_template: "{{ custom_action_off != none }}"
-        then:
-          - choose: []
-            default: !input "custom_action_off"
-  - if:
-      - condition: template
-        value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
-    then:
+            default: !input "custom_action_on"    
       - if:
           - condition: template
             value_template: "{{ notify_device != none }}"
@@ -457,6 +444,14 @@ action:
               message: !input message
               notification_id: "{{ tag }}"
     else:
+      - variables:
+          custom_action_on: !input custom_action_off
+      - if:
+        - condition: template
+          value_template: "{{ custom_action_off != none }}"
+        then:
+          - choose: []
+            default: !input "custom_action_off"
       - service: notify.notify
         data:
           data:
