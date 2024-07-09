@@ -40,7 +40,7 @@ blueprint:
     sensor_section:
       name: Sensors
       icon: mdi:broadcast
-      collapsed: false
+      collapsed: true
       input:
         sensor_entity:
           name: "🖲️ Observed Entities"
@@ -78,7 +78,7 @@ blueprint:
     mobile_notifcation_section:
       name: Mobile Notification Settings
       icon: mdi:chat
-      collapsed: false
+      collapsed: true
       input:
         notify_device:
           name: "📱 Device to notify"
@@ -144,7 +144,7 @@ blueprint:
     peridodic_notification_section:
       name: Periodic Notification Settings
       icon: mdi:refresh
-      collapsed: false
+      collapsed: true
       input:
       
         period:
@@ -173,7 +173,7 @@ blueprint:
     mobile_appearance_section:
       name: Mobile Notification Appearance
       icon: mdi:palette
-      collapsed: false
+      collapsed: true
       input:
         status_bar_icon:
           name: "🌠 Status Bar Icon"
@@ -239,7 +239,7 @@ blueprint:
     custom_section:
       name: Custom Actions / Conditions
       icon: mdi:cog
-      collapsed: false
+      collapsed: true
       input:
         custom_condition:
           name: "❌ Conditions"
@@ -333,7 +333,28 @@ action:
       entity_name: "{{ state_attr(sensor,'friendly_name') }}"
       tag: "{{ this.entity_id.split('.')[1] + sensor.split('.')[1] }}"
       action_tag: "{{ action_prefix }}_{{ sensor }}"
-
+      
+  - if:
+    - condition: template
+      value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
+    then:
+      - variables:
+          custom_action_on: !input custom_action_on
+      - if:
+        - condition: template
+          value_template: "{{ custom_action_on != none }}"
+        then:
+          - choose: []
+            default: !input "custom_action_on"
+    else:
+      - variables:
+          custom_action_on: !input custom_action_off
+      - if:
+        - condition: template
+          value_template: "{{ custom_action_off != none }}"
+        then:
+          - choose: []
+            default: !input "custom_action_off"
   - if:
       - condition: template
         value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
@@ -484,27 +505,5 @@ action:
               s_entity: "{{ sensor }}"
               automation: "{{ this.entity_id }}"
               st_last_changed: "{{ s_last_changed }}"
-
-  - if:
-    - condition: template
-      value_template: "{{ is_period_trigger or trigger.to_state.state == active_state }}"
-    then:
-      - variables:
-          custom_action_on: !input custom_action_on
-      - if:
-        - condition: template
-          value_template: "{{ custom_action_on != none }}"
-        then:
-          - choose: []
-            default: !input "custom_action_on"
-    else:
-      - variables:
-          custom_action_on: !input custom_action_off
-      - if:
-        - condition: template
-          value_template: "{{ custom_action_off != none }}"
-        then:
-          - choose: []
-            default: !input "custom_action_off"
 
 mode: parallel
